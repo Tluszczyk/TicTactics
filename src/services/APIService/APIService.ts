@@ -59,7 +59,9 @@ export class APIService extends BaseService {
             app: this.app,
             apiDoc: 'src/services/APIService/apiDoc.yml',
             operations: {
-                'CreateUser': this.userManagementExecutor.createUser.bind(this.userManagementExecutor)
+                'CreateUser': this.userManagementExecutor.createUser.bind(this.userManagementExecutor),
+                // 'GetUser': this.userManagementExecutor.getUser.bind(this.userManagementExecutor),
+                'DeleteUser': this.userManagementExecutor.deleteUser.bind(this.userManagementExecutor)
             }
         });
     }

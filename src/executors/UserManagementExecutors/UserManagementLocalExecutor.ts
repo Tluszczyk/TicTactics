@@ -25,7 +25,7 @@ export class UserManagementLocalExecutor extends UserManagementBaseExecutor impl
 
     deleteUser(req: Request, res: Response): void {
         this.logger.debug("UserManagementLocalExecutor: Delete user");
-        throw new Error("Method not implemented.");
+        this.service.deleteUser(req, res);
     }
     
 }
