@@ -30,6 +30,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Error'
+        delete:
+            operationId: DeleteUser
+            tags:
+                - user
+            summary: Delete user
+            parameters:
+              - in: query
+                name: userId
+                schema:
+                  type: string
+            responses:
+                '200':
+                    description: OK
+                default:
+                    description: Unexpected error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
 components:
     schemas:
         Error:

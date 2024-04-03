@@ -17,7 +17,7 @@ export class UserManagementService extends BaseService implements UserManagement
     public createUser(req: Request, res: Response) {
         this.logger.debug("UserManagementLocalExecutor: Creating user");
         
-        var credentials = (req.body as types.CreateUserRequest).credentials;
+        var credentials = req.body["credentials"] as types.Credentials;
         
         this.users.create(
             sdk.ID.unique(),
@@ -43,7 +43,19 @@ export class UserManagementService extends BaseService implements UserManagement
 
     deleteUser(req: Request, res: Response): void {
         this.logger.debug("UserManagementLocalExecutor: Deleting user");
-        throw new Error("Method not implemented.");
+
+        var userId = req.query.userId as string;
+
+        this.users.delete(userId)
+        .then(_ => {
+            res.status(StatusCodes.OK).send(ReasonPhrases.OK);
+            
+        }).catch(err => {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+                error: `${ReasonPhrases.INTERNAL_SERVER_ERROR}: ${err.message}`
+            });
+        });
     }
+
 }
     

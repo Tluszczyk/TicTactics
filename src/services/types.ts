@@ -1,6 +1,3 @@
-// Imports
-import Express from 'express';
-
 // Types
 
 export type Credentials = {
@@ -9,15 +6,3 @@ export type Credentials = {
     email?: string;
     phone?: string;
 }
-
-
-// Requests
-
-export type CreateUserRequest = {
-    credentials: Credentials
-}
-
-
-// Responses
-
-export type CreateUserResponse = {}
