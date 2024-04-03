@@ -1,0 +1,61 @@
+openapi: 3.0.0
+info:
+    title: TicTactics API
+    version: 1.0.0
+    description: "TicTactics API"
+tags:
+    - name: user
+      description: User Management Service
+    - name: game
+      description: Game Management Service
+paths:
+    /user:
+        post:
+            operationId: CreateUser
+            tags:
+                - user
+            summary: Create new user
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateUserRequest'
+            responses:
+                '200':
+                    description: OK
+                default:
+                    description: Unexpected error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+components:
+    schemas:
+        Error:
+            type: object
+            properties:
+                error:
+                    type: string
+        Credentials:
+            type: object
+            required:
+                - name
+                - password
+                - email
+            properties:
+                name:
+                    type: string
+                email:
+                    type: string
+                password:
+                    type: string
+                phone:
+                    type: string
+        CreateUserRequest:
+            type: object
+            required:
+                - credentials
+            properties:
+                credentials:
+                    $ref: '#/components/schemas/Credentials'
