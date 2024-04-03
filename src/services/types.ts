@@ -6,3 +6,8 @@ export type Credentials = {
     email?: string;
     phone?: string;
 }
+
+export type UserData = {
+    userId: string;
+    ELO: number;
+}

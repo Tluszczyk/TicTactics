@@ -1,7 +1,8 @@
 export class EnvironmentVariablesManager {
     // Database
-    public static getDATABASE_NAME()            { return process.env.DATABASE_NAME;             }
-    public static getGAMES_COLLECTION_NAME()    { return process.env.GAMES_COLLECTION_NAME;     }
+    public static getDATABASE_ID()              { return process.env.DATABASE_ID;             }
+    public static getUSERS_DATA_COLLECTION_ID() { return process.env.USERS_DATA_COLLECTION_ID;}
+    public static getGAMES_COLLECTION_ID()      { return process.env.GAMES_COLLECTION_ID;     }
 
     // Appwrite
     public static getAPPWRITE_PROJECT()     { return process.env.APPWRITE_PROJECT;          }
