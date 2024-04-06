@@ -4,7 +4,7 @@ import { LogLevel } from "typescript-logging";
 export class ConsoleLogger extends BaseLogger {
     protected log(message: string, level: LogLevel) {
         if (level >= this.logLevel) {
-            console.log(message);
+            console.log(this.addContextToMessage(message, level));
         }
     }
 }

@@ -1,7 +1,8 @@
 export class EnvironmentVariablesManager {
     // Database
-    public static getDATABASE_NAME()            { return process.env.DATABASE_NAME;             }
-    public static getGAMES_COLLECTION_NAME()    { return process.env.GAMES_COLLECTION_NAME;     }
+    public static getDATABASE_ID()              { return process.env.DATABASE_ID;             }
+    public static getUSERS_DATA_COLLECTION_ID() { return process.env.USERS_DATA_COLLECTION_ID;}
+    public static getGAMES_COLLECTION_ID()      { return process.env.GAMES_COLLECTION_ID;     }
 
     // Appwrite
     public static getAPPWRITE_PROJECT()     { return process.env.APPWRITE_PROJECT;          }
@@ -10,4 +11,7 @@ export class EnvironmentVariablesManager {
 
     // Deployment options
     public static getUSER_MANAGEMENT_SERVICE_DEPLOYMENT_OPTION() { return process.env.USER_MANAGEMENT_SERVICE_DEPLOYMENT_OPTION; }
+
+    // Logging
+    public static getLOGGING_LEVEL() { return process.env.LOGGING_LEVEL; }
 }

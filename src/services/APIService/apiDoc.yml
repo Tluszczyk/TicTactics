@@ -30,6 +30,29 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Error'
+        get:
+            operationId: GetUser
+            tags:
+                - user
+            summary: Get user
+            parameters:
+              - in: query
+                name: userId
+                schema:
+                  type: string
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserData'
+                default:
+                    description: Unexpected error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
         delete:
             operationId: DeleteUser
             tags:
@@ -78,3 +101,10 @@ components:
             properties:
                 credentials:
                     $ref: '#/components/schemas/Credentials'
+        UserData:
+            type: object
+            required:
+                - ELO
+            properties:
+                ELO:
+                    type: number
