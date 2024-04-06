@@ -1,8 +1,11 @@
 import * as sdk from "node-appwrite";
 import { LoggingClass } from "../lib/LoggingClass";
 
+import { RollbackManager } from "../lib/Rollback/RollbackManager";
+
 export class BaseService extends LoggingClass {
     protected client: sdk.Client;
+    protected rollbackManager: RollbackManager = new RollbackManager();
 
     constructor() {
         super();

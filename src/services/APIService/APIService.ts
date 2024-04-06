@@ -1,7 +1,6 @@
 import { BaseService } from "../BaseService";
 
-import { UserManagementInterface} from "../../interfaces/UserManagementInterface";
-import { UserManagementExecutorCreator } from "../../executors/UserManagementExecutors/UserManagementExecutorCreator";
+import { UserManagementService } from "../UserManagementService/UserManagementService";
 
 import * as OpenApiValidator from 'express-openapi-validator';
 import express, { Application, Request, Response, NextFunction } from 'express';
@@ -15,12 +14,9 @@ export class APIService extends BaseService {
     private app: Application = express();
 
     // Executors
-    private userManagementExecutor: UserManagementInterface;
+    private userManagementService: UserManagementService = new UserManagementService();
 
-    private initializeExecutors() {
-        this.logger.debug("Initializing executors...");
-
-        this.userManagementExecutor = UserManagementExecutorCreator.createUserExecutor();
+    private setUpMiddleware() {
 
         // Set up express middleware
         // Set up body parser
@@ -51,17 +47,18 @@ export class APIService extends BaseService {
     constructor(PORT: number) {
         super();
 
-        this.initializeExecutors();
-
+        this.setUpMiddleware();
         this.PORT = PORT;
+
+        var executor = this.userManagementService.executor.bind(this.userManagementService)
 
         initialize({
             app: this.app,
             apiDoc: 'src/services/APIService/apiDoc.yml',
             operations: {
-                'CreateUser': this.userManagementExecutor.createUser.bind(this.userManagementExecutor),
-                // 'GetUser': this.userManagementExecutor.getUser.bind(this.userManagementExecutor),
-                'DeleteUser': this.userManagementExecutor.deleteUser.bind(this.userManagementExecutor)
+                'CreateUser':   executor(this.userManagementService.createUser),
+                'GetUser':      executor(this.userManagementService.getUser),
+                'DeleteUser':   executor(this.userManagementService.deleteUser),
             }
         });
     }

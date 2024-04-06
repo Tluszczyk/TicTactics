@@ -1,3 +1,5 @@
+import { Models } from "node-appwrite";
+
 // Types
 
 export type Credentials = {
@@ -8,6 +10,21 @@ export type Credentials = {
 }
 
 export type UserData = {
-    userId: string;
     ELO: number;
 }
+
+export function parseUserData(document: Models.Document): UserData {
+    const userData: UserData = {} as UserData;
+
+    Object.entries(document).forEach(
+        ([key, value]) => {
+            if (key[0] !== "$") {
+                // @ts-ignore
+                userData[key] = value;
+            }
+        }
+    );
+
+    return userData;
+}
+

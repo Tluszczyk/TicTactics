@@ -11,4 +11,7 @@ export class EnvironmentVariablesManager {
 
     // Deployment options
     public static getUSER_MANAGEMENT_SERVICE_DEPLOYMENT_OPTION() { return process.env.USER_MANAGEMENT_SERVICE_DEPLOYMENT_OPTION; }
+
+    // Logging
+    public static getLOGGING_LEVEL() { return process.env.LOGGING_LEVEL; }
 }

@@ -3,9 +3,36 @@ import { ILogger } from "./ILogger";
 
 export class BaseLogger implements ILogger {
     public logLevel: LogLevel = LogLevel.Info;
+    protected contexts: string[] = [];
 
     constructor(LOG_LEVEL?: LogLevel) {
         this.logLevel = LOG_LEVEL || LogLevel.Info;
+    }
+
+    public appendContext(context: string): void {
+        this.contexts.push(context);
+    }
+
+    public popContext(): void {
+        this.contexts.pop();
+    }
+
+    private getLevelPrefix(level: LogLevel): string {
+        switch (level) {
+            case LogLevel.Error: return "!";
+            case LogLevel.Warn: return "w";
+            case LogLevel.Info: return "i";
+            case LogLevel.Debug: return " ";
+            case LogLevel.Trace: return " ";
+        }
+    }
+
+    protected addContextToMessage(message: string, level: LogLevel): string {
+        if (this.contexts.length > 0) {
+            return `[${this.getLevelPrefix(level)}] ${this.contexts.join(": ")}: ${message}`;
+        } else {
+            return message;
+        }
     }
 
     protected log(message: string, level: LogLevel) {
