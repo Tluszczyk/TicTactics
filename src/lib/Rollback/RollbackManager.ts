@@ -1,15 +1,21 @@
 import { LoggingClass } from "../LoggingClass";
-import { ErrorHandler } from "../ErrorHandler";
-
 import { RollbackableOperation } from "./RollbackableOperation";
 
+import { ErrorHandler } from "../ErrorHandling/ErrorHandler";
+import { Errors } from "../ErrorHandling/Errors";
+
 export class RollbackManager extends LoggingClass {
+    /**
+     * Manager for RollbackableOperations.
+     * If an operation fails, the RollbackManager will attempt to rollback all previously successful operations.
+     * The RollbackManager keeps track of the inputs needed for rollback.
+     */
 
     private operations: RollbackableOperation<any,any>[] = [];
     private rollbackInputs: any[] = [];
     
     private didFail: boolean = false;
-    private errorMessage: string = "unknown error";
+    private error: Errors.ServiceError;
 
     protected errorHandler: ErrorHandler = new ErrorHandler();
 
@@ -19,14 +25,21 @@ export class RollbackManager extends LoggingClass {
         this.logger.appendContext("RollbackManager");
     }
 
-    public async run<RunnerOutputType,RollbackInputType>(operation: RollbackableOperation<RunnerOutputType,RollbackInputType>): Promise<[boolean,RunnerOutputType|void]> {
+    /**
+     * Runs a rollbackable operation and handles the success or failure.
+     * @typeparam {RollbackableOperation<RunnerOutputType,RollbackInputType>} operation - the operation to be executed
+     *
+     * @param {RollbackableOperation<RunnerOutputType,RollbackInputType>} operation - the operation to be executed
+     * @return {Promise<[boolean,RunnerOutputType]>} a promise containing a boolean indicating success or failure, and the runner output
+     */
+    public async run<RunnerOutputType,RollbackInputType>(operation: RollbackableOperation<RunnerOutputType,RollbackInputType>): Promise<[boolean,RunnerOutputType]> {
         this.logger.debug(`running ${operation.actionMessage}`);
 
         if ( this.didFail ) {
             this.logger.debug(`skipping ${operation.actionMessage}, because previous operation failed`);
             return [false, null];
         }
-
+        
         var [tryOutput, err] = await this.errorHandler.try(operation.runner, null, operation.actionMessage);
 
         if ( err === null ) {
@@ -43,29 +56,52 @@ export class RollbackManager extends LoggingClass {
             this.logger.error(`failed ${operation.actionMessage}: ${err.message}`);
             
             this.didFail = true;
-            this.errorMessage = err.message;
+            this.error = err;
 
             await this.rollback();
             return [false,null]
         }
     }
 
+    /**
+     * Clears the operations array, rollback inputs array, and resets the didFail flag.
+     *
+     */
     public clear(): void {
         this.operations = [];
         this.rollbackInputs = [];
+        this.didFail = false;
     }
 
-    private rollback(): Promise<any> {
+    /**
+     * Rolls back all previously successful operations.
+     *
+     * @return {Promise<any>} - the result value should be ignored 
+     */
+    private async rollback(): Promise<any> {
         this.logger.debug("rolling back");
 
-        return Promise.all(this.operations.map((operation, index) => (operation.rollback ?? Promise.resolve)(this.rollbackInputs[index])))
+        var index = 0;
+        for(const operation of this.operations) {
+            if(operation.rollback) await operation.rollback(this.rollbackInputs[index++]);
+        }
     }
 
+    /**
+     * Check if the action failed.
+     *
+     * @return {boolean} the result of the check
+     */
     public didItFail(): boolean {
         return this.didFail;
     }
 
-    public getErrorMessage(): string {
-        return this.errorMessage;
+    /**
+     * Retrieves the error message.
+     *
+     * @return {string} the error message
+     */
+    public getError(): Errors.ServiceError {
+        return this.error;
     }
 }

@@ -4,23 +4,25 @@ info:
     version: 1.0.0
     description: "TicTactics API"
 tags:
-    - name: user
+    - name: auth
+      description: Authorization Service
+    - name: users
       description: User Management Service
     - name: game
       description: Game Management Service
 paths:
-    /user:
+    /signup:
         post:
-            operationId: CreateUser
+            operationId: SignUp
             tags:
-                - user
+                - auth
             summary: Create new user
             requestBody:
                 required: true
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/CreateUserRequest'
+                            $ref: '#/components/schemas/SignUpRequest'
             responses:
                 '200':
                     description: OK
@@ -30,42 +32,121 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Error'
-        get:
-            operationId: GetUser
+    /signin:
+        post:
+            operationId: SignIn
             tags:
-                - user
-            summary: Get user
-            parameters:
-              - in: query
-                name: userId
-                schema:
-                  type: string
+                - auth
+            summary: Sign in
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SignInRequest'
             responses:
                 '200':
                     description: OK
+                    headers:
+                        Set-Cookie:
+                            schema:
+                                type: string
+                                description: Session cookie
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UserData'
+                                $ref: '#/components/schemas/SignInResponse'
+                '401':
+                    description: Invalid credentials
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
                 default:
                     description: Unexpected error
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Error'
+    /signout:
         delete:
-            operationId: DeleteUser
+            operationId: SignOut
             tags:
-                - user
-            summary: Delete user
+                - auth
+            summary: Sign out
+            security:
+                - cookieAuth: []
+            responses:
+                '200':
+                    description: OK
+                '401':
+                    description: Access token is missing or invalid
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                default:
+                    description: Unexpected error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /deleteAccount:
+        delete:
+            operationId: DeleteAccount
+            tags:
+                - auth
+            summary: Delete account
             parameters:
               - in: query
                 name: userId
                 schema:
                   type: string
+            security:
+                - cookieAuth: []
             responses:
                 '200':
                     description: OK
+                '401':
+                    description: Access token is missing or invalid
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                default:
+                    description: Unexpected error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /users:
+        get:
+            operationId: GetUsers
+            tags:
+                - users
+            summary: Get users with a given name
+            parameters:
+              - in: query
+                name: name
+                schema:
+                  type: string
+            security:
+                - cookieAuth: []
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/UserData'
+                '401':
+                    description: Access token is missing or invalid
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
                 default:
                     description: Unexpected error
                     content:
@@ -73,12 +154,24 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
 components:
+    securitySchemes:
+        cookieAuth:
+            type: apiKey
+            in: cookie
+            name: session
+
     schemas:
+        # errors
         Error:
             type: object
             properties:
                 error:
                     type: string
+
+        UnauthorizedError:
+            description: Access token is missing or invalid
+
+        # types
         Credentials:
             type: object
             required:
@@ -94,17 +187,40 @@ components:
                     type: string
                 phone:
                     type: string
-        CreateUserRequest:
+        
+        UserData:
+            type: object
+            required:
+                - ELO
+            properties:
+                userId:
+                    type: string
+                username:
+                    type: string
+                ELO:
+                    type: number
+
+        # auth
+        SignUpRequest:
             type: object
             required:
                 - credentials
             properties:
                 credentials:
                     $ref: '#/components/schemas/Credentials'
-        UserData:
+
+        SignInRequest:
             type: object
             required:
-                - ELO
+                - credentials
             properties:
-                ELO:
-                    type: number
+                credentials:
+                    $ref: '#/components/schemas/Credentials'
+
+        SignInResponse:
+            type: object
+            required:
+                - token
+            properties:
+                token:
+                    type: string
