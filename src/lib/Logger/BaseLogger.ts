@@ -1,4 +1,4 @@
-import { LogLevel } from "typescript-logging";
+import { LogLevel } from "./LogLevel";
 import { ILogger } from "./ILogger";
 
 export class BaseLogger implements ILogger {
@@ -35,27 +35,27 @@ export class BaseLogger implements ILogger {
         }
     }
 
-    protected log(message: string, level: LogLevel) {
+    protected log(message: string, level: LogLevel, inNewLine: boolean = false) {
         throw new Error("Method not implemented.");
     }
     
-    public error(message: string) {
-        this.log(message, LogLevel.Error);
+    public error(message: string, inNewLine: boolean = false) {
+        this.log(message, LogLevel.Error, inNewLine);
     }
     
-    public warn(message: string): void {
-        this.log(message, LogLevel.Warn);
+    public warn(message: string, inNewLine: boolean = false): void {
+        this.log(message, LogLevel.Warn, inNewLine);
     }
     
-    public info(message: string): void {
-        this.log(message, LogLevel.Info);
+    public info(message: string, inNewLine: boolean = false): void {
+        this.log(message, LogLevel.Info, inNewLine);
     }
     
-    public debug(message: string): void {
-        this.log(message, LogLevel.Debug);
+    public debug(message: string, inNewLine: boolean = false): void {
+        this.log(message, LogLevel.Debug, inNewLine);
     }
     
-    public trace(message: string): void {
-        this.log(message, LogLevel.Trace);
+    public trace(message: string, inNewLine: boolean = false): void {
+        this.log(message, LogLevel.Trace, inNewLine);
     }
 }

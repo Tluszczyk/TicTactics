@@ -1,11 +1,13 @@
 import { BaseService } from "../BaseService";
 
 import { UserManagementService } from "../UserManagementService/UserManagementService";
+import { AuthorisationService } from "../AuthorisationService/AuthorisationService";
 
 import * as OpenApiValidator from 'express-openapi-validator';
 import express, { Application, Request, Response, NextFunction } from 'express';
 import { initialize } from 'express-openapi';
 import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 
 
 export class APIService extends BaseService {
@@ -13,8 +15,13 @@ export class APIService extends BaseService {
 
     private app: Application = express();
 
-    // Executors
+    // Services
     private userManagementService: UserManagementService = new UserManagementService();
+    private authorisationService: AuthorisationService = new AuthorisationService();
+
+    public getApp() {
+        return this.app;
+    }
 
     private setUpMiddleware() {
 
@@ -22,6 +29,9 @@ export class APIService extends BaseService {
         // Set up body parser
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: true }));
+
+        // Set up cookie parser
+        this.app.use(cookieParser());
 
         // Set up OpenAPI validator
         this.app.use(OpenApiValidator.middleware({ 
@@ -50,15 +60,21 @@ export class APIService extends BaseService {
         this.setUpMiddleware();
         this.PORT = PORT;
 
-        var executor = this.userManagementService.executor.bind(this.userManagementService)
+        const userManagementExecutor:   Function = this.userManagementService.executor.bind(this.userManagementService)
+        const authorisationExecutor:    Function = this.authorisationService.executor.bind(this.authorisationService)
 
         initialize({
             app: this.app,
             apiDoc: 'src/services/APIService/apiDoc.yml',
             operations: {
-                'CreateUser':   executor(this.userManagementService.createUser),
-                'GetUser':      executor(this.userManagementService.getUser),
-                'DeleteUser':   executor(this.userManagementService.deleteUser),
+                // Authorisation
+                'SignUp':           authorisationExecutor(this.authorisationService.signUp,         "signUp",           false),
+                'SignIn':           authorisationExecutor(this.authorisationService.signIn,         "signIn",           false),
+                'SignOut':          authorisationExecutor(this.authorisationService.signOut,        "signOut",          true),
+                'DeleteAccount':    authorisationExecutor(this.authorisationService.deleteAccount,  "deleteAccount",    true),
+
+                // User Management
+                'GetUsers':         userManagementExecutor(this.userManagementService.getUsers,     "getUsers",         true),
             }
         });
     }

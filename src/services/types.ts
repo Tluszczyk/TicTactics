@@ -9,22 +9,24 @@ export type Credentials = {
     phone?: string;
 }
 
-export type UserData = {
+export type UserPublicData = {
+    userId: string;
+    username: string;
     ELO: number;
 }
 
-export function parseUserData(document: Models.Document): UserData {
-    const userData: UserData = {} as UserData;
+export function parseUserPublicData(document: Models.Document): UserPublicData {
+    const userPublicData: UserPublicData = {} as UserPublicData;
 
     Object.entries(document).forEach(
         ([key, value]) => {
             if (key[0] !== "$") {
                 // @ts-ignore
-                userData[key] = value;
+                userPublicData[key] = value;
             }
         }
     );
 
-    return userData;
+    return userPublicData;
 }
 

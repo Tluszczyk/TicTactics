@@ -1,4 +1,4 @@
-import { LogLevel } from "typescript-logging";
+import { LogLevel } from "./LogLevel";
 
 export interface ILogger {
     readonly logLevel: LogLevel

@@ -1,4 +1,4 @@
-import { LogLevel } from "typescript-logging";
+import { LogLevel } from "./Logger/LogLevel";
 import { BaseLogger } from "./Logger/BaseLogger";
 import { ConsoleLogger } from "./Logger/ConsoleLogger";
 import { EnvironmentVariablesManager } from "../EnvironmentVariablesManager";
