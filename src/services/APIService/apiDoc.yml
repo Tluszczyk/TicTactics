@@ -97,11 +97,6 @@ paths:
             tags:
                 - auth
             summary: Delete account
-            parameters:
-              - in: query
-                name: userId
-                schema:
-                  type: string
             security:
                 - cookieAuth: []
             responses:
