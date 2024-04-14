@@ -15,6 +15,12 @@ export type UserPublicData = {
     ELO: number;
 }
 
+/**
+ * Parses the user public data from the provided document.
+ *
+ * @param {Models.Document} document - The document containing user data.
+ * @return {UserPublicData} The parsed user public data.
+ */
 export function parseUserPublicData(document: Models.Document): UserPublicData {
     const userPublicData: UserPublicData = {} as UserPublicData;
 

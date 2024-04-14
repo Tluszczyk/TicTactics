@@ -23,6 +23,9 @@ export class APIService extends BaseService {
         return this.app;
     }
 
+    /**
+     * Set up express middleware including body parser, cookie parser, OpenAPI validator, and error handling middleware
+     */
     private setUpMiddleware() {
 
         // Set up express middleware

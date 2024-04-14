@@ -1,6 +1,12 @@
 import { Errors } from "./Errors";
 
 export class ErrorProvider {
+    /**
+     * Parses the error message and returns the corresponding Errors.ServiceError based on the message content.
+     *
+     * @param {string} message - The error message to parse.
+     * @return {Errors.ServiceError} The corresponding Errors.ServiceError based on the parsed message.
+     */
     public static parseError(message: string): Errors.ServiceError {
 
         switch(message) {

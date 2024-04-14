@@ -22,6 +22,11 @@ export class AuthorisationService extends BaseService {
         this.logger.appendContext("AuthorisationService");
     }
 
+    /**
+     * Retrieves the user public data collection from the server databases.
+     *
+     * @return {Promise<void>}
+     */
     async getCollections(): Promise<void> {
         this.usersPublicData = await this.serverDatabases.getCollection(
             EnvironmentVariablesManager.getDATABASE_ID(),
@@ -57,6 +62,12 @@ export class AuthorisationService extends BaseService {
         });
     }
 
+    /**
+     * Create a new user session upon signing in.
+     *
+     * @param {Request} req - the request object containing user data
+     * @return {Promise<void>} Promise that resolves once the user is signed in
+     */
     public async signIn(req: Request): Promise<void> {
         this.logger.appendContext("SignIn");
 
@@ -71,7 +82,20 @@ export class AuthorisationService extends BaseService {
         this.session = session;
     }
 
-    public async signOut(input: [Request,Response]) {
+    /**
+     * Deletes a user session when signing out.
+     *
+     * @param {Request} req - the request object containing user data
+     * @return {Promise<void>} Promise that resolves once the session is deleted
+     */
+    public async signOut(req: Request): Promise<void> {
+        this.logger.appendContext("SignOut");
+
+        await this.rollbackManager.run<null,null>({
+            runner: AuthorisationRunners.deleteSessionRunner.bind(this),
+            rollback: null,
+            actionMessage: "signing out"
+        });
     }
 
     /**
