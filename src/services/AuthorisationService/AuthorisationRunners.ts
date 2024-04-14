@@ -46,12 +46,34 @@ export namespace AuthorisationRunners {
         return [null,null]
     }
 
+    /**
+     * Creates a new session using the provided credentials.
+     *
+     * @param {types.Credentials} credentials - The user's credentials including email and password.
+     * @return {[sdk.Models.Session,null]} The created session or null if unsuccessful.
+     */
     export async function createSessionRunner(this: AuthorisationService, credentials: types.Credentials): Promise<[sdk.Models.Session,null]> {
         const account = new sdk.Account(this.server);
 
         const session = await account.createEmailPasswordSession(credentials.email, credentials.password);
 
         return [session,null]
+    }
+
+    /**
+     * Deletes the current session by finding it in the session list and deleting it from the user's sessions.
+     *
+     * @return {Promise<[null, null]>} Returns a tuple indicating a successful deletion.
+     */
+    export async function deleteSessionRunner(this: AuthorisationService): Promise<[null,null]> {
+        const account = new sdk.Account(this.client);
+
+        const sessionList = await account.listSessions();
+
+        const currentSession = sessionList.sessions.find(session => session.current);
+        
+        await this.users.deleteSession(currentSession.userId, currentSession.$id);
+        return [null,null]
     }
 
     /**

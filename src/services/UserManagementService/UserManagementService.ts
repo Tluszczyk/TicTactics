@@ -30,6 +30,11 @@ export class UserManagementService extends BaseService {
         this.logger.appendContext("UserManagementService");
     }
 
+    /**
+     * Retrieves the user public data collection asynchronously.
+     *
+     * @return {Promise<void>} Promise that resolves once the user public data collection is retrieved
+     */
     async getCollections(): Promise<void> {
         this.usersPublicData = await this.serverDatabases.getCollection(
             EnvironmentVariablesManager.getDATABASE_ID(),

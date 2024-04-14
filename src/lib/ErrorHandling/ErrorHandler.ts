@@ -10,6 +10,16 @@ export class ErrorHandler extends LoggingClass {
         this.logger.appendContext("ErrorHandler");
     }
 
+    /**
+     * Executes a function asynchronously, handles success and error cases, and 
+     * logs the actions taken.
+     *
+     * @param {() => Promise<T>} func - The function to execute asynchronously
+     * @param {(err: Errors.ServiceError) => void} failCallback - The callback function for error handling
+     * @param {string} actionMessage - The message describing the action being performed
+     * @return {Promise<[T, Errors.ServiceError]>} A promise that resolves with the result 
+     *                                             or an error object
+     */
     public async try<T>(func: () => Promise<T>, failCallback: (err: Errors.ServiceError) => void, actionMessage: string): Promise<[T,Errors.ServiceError]> {
         this.logger.debug(`trying ${actionMessage}`);
 

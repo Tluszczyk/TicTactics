@@ -65,11 +65,20 @@ export class ServiceExecutor extends LoggingClass {
         this.logger.popContext();
     }
 
-    private async methodExecutor<T>(req: Request, res: Response, method: (req: Request, res: Response) => Promise<T>, methodName: string): Promise<T> {
+    /**
+     * Executes the method with error handling and binding to the current context.
+     *
+     * @param {Request} req - The request object
+     * @param {Response} res - The response object
+     * @param {(req: Request) => Promise<T>} method - The method to execute
+     * @param {string} methodName - The name of the method being executed
+     * @return {Promise<T>} The output of the method execution
+     */
+    private async methodExecutor<T>(req: Request, res: Response, method: (req: Request) => Promise<T>, methodName: string): Promise<T> {
         this.logger.appendContext("MethodExecutor");
 
         var [output, error] = await this.errorHandler.try<T>(
-            method.bind(this, req, res),
+            method.bind(this, req),
             this.handleError.bind(this, res),
             methodName
         );
@@ -112,6 +121,13 @@ export class ServiceExecutor extends LoggingClass {
         this.logger.popContext();
     }
 
+    /**
+     * Handles errors by setting errorHapened flag to true, logging the error, and sending it in the response.
+     *
+     * @param {Response} res - the response object
+     * @param {Errors.ServiceError} err - the service error object
+     * @return {void} No return value
+     */
     private handleError(res: Response, err: Errors.ServiceError) {
         this.errorHapened = true;
         res.status(err.code)
@@ -128,7 +144,7 @@ export class ServiceExecutor extends LoggingClass {
      * @param {Function} method - the method to be executed
      * @return {Function} an asynchronous function that executes the method with pre and post-execution steps
      */
-    public executor<T>(this: BaseService, method: (req: Request, res: Response) => Promise<T>, methodName: string, authoriseRequest: boolean): (req: Request, res: Response) => Promise<void> {
+    public executor<T>(this: BaseService, method: (req: Request) => Promise<T>, methodName: string, authoriseRequest: boolean): (req: Request, res: Response) => Promise<void> {
         return async (req: Request, res: Response) => {
             this.logger.info(`executing method: ${methodName}:`, true);
 
