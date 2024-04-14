@@ -105,13 +105,15 @@ export namespace AuthorisationRunners {
     }
 
     /**
-     * Retrieves a user with the provided userId.
+     * Retrieves a user that is currently logged in.
      *
      * @param {string} userId - The ID of the user to be retrieved.
      * @return {Promise<sdk.Models.User<sdk.Models.Preferences>>} The user object retrieved.
      */
-    export async function getUser(this: AuthorisationService, userId: string): Promise<[sdk.Models.User<sdk.Models.Preferences>,null]> {
-        let user = await this.users.get(userId)
-        return [user,null]
+    export async function getUserFromSessionRunner(this: AuthorisationService): Promise<[sdk.Models.User<sdk.Models.Preferences>,null]> {
+        const account = new sdk.Account(this.client);
+
+        let user = await account.get();
+        return [user, null]
     }
 }

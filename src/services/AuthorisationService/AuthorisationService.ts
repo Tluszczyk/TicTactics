@@ -107,22 +107,20 @@ export class AuthorisationService extends BaseService {
     public async deleteAccount(req: Request): Promise<void> {
         this.logger.appendContext("DeleteAccount");
 
-        const userId = req.query.userId as string;
-
-        await this.rollbackManager.run<null,null>({
-            runner: AuthorisationRunners.getUser.bind(this, userId),
+        let [_, user] = await this.rollbackManager.run<sdk.Models.User<sdk.Models.Preferences>,null>({
+            runner: AuthorisationRunners.getUserFromSessionRunner.bind(this),
             rollback: null,
             actionMessage: "getting user"
         });
 
         await this.rollbackManager.run<null,sdk.Models.Document>({
-            runner: AuthorisationRunners.deleteUserPublicDataRunner.bind(this, userId),
-            rollback: AuthorisationRollbacks.deleteUserPublicDataRollback.bind(this, userId),
+            runner: AuthorisationRunners.deleteUserPublicDataRunner.bind(this, user.$id),
+            rollback: AuthorisationRollbacks.deleteUserPublicDataRollback.bind(this, user.$id),
             actionMessage: "deleting user data"
         });
 
         await this.rollbackManager.run<null,null>({
-            runner: AuthorisationRunners.deleteUserRunner.bind(this, userId),
+            runner: AuthorisationRunners.deleteUserRunner.bind(this, user.$id),
             rollback: null,
             actionMessage: "deleting user"
         });
