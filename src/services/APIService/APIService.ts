@@ -2,6 +2,7 @@ import { BaseService } from "../BaseService";
 
 import { UserManagementService } from "../UserManagementService/UserManagementService";
 import { AuthorisationService } from "../AuthorisationService/AuthorisationService";
+import { GameManagementService } from "../GameManagementService/GameManagementService";
 
 import * as OpenApiValidator from 'express-openapi-validator';
 import express, { Application, Request, Response, NextFunction } from 'express';
@@ -18,6 +19,7 @@ export class APIService extends BaseService {
     // Services
     private userManagementService: UserManagementService = new UserManagementService();
     private authorisationService: AuthorisationService = new AuthorisationService();
+    private gameManagementService: GameManagementService = new GameManagementService();
 
     public getApp() {
         return this.app;
@@ -65,6 +67,7 @@ export class APIService extends BaseService {
 
         const userManagementExecutor:   Function = this.userManagementService.executor.bind(this.userManagementService)
         const authorisationExecutor:    Function = this.authorisationService.executor.bind(this.authorisationService)
+        const gameManagementExecutor:   Function = this.gameManagementService.executor.bind(this.gameManagementService)
 
         initialize({
             app: this.app,
@@ -78,6 +81,9 @@ export class APIService extends BaseService {
 
                 // User Management
                 'GetUsers':         userManagementExecutor(this.userManagementService.getUsers,     "getUsers",         true),
+
+                // Game Management
+                'CreateGame':       gameManagementExecutor(this.gameManagementService.createGame,   "createGame",       true),
             }
         });
     }

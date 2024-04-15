@@ -15,6 +15,20 @@ export type UserPublicData = {
     ELO: number;
 }
 
+export type GameSettings = {
+    isPrivate: boolean;
+    opponentId: string;
+    creatorSymbol: string;
+}
+
+export type Game = GameSettings & {
+    serialisedBoard: string;
+    oPlayerId: string;
+    xPlayerId: string;
+    winner: string;
+    status: string;
+}
+
 /**
  * Parses the user public data from the provided document.
  *

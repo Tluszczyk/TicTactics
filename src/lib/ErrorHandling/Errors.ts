@@ -4,6 +4,12 @@ export namespace Errors {
         title: string
         message: string
     }
+
+    export const BAD_REQUEST = {
+        code: 400, 
+        title: "Bad Request",
+        message: "Invalid request"
+    }
     
     export const UNAUTHORISED = {
         code: 401, 
@@ -11,16 +17,16 @@ export namespace Errors {
         message: "Access token is missing or invalid"
     }
 
-    export const PERMISSION_DENIED = {
-        code: 403, 
-        title: "Forbidden", 
-        message: "The current user is not authorized to perform the requested action."
-    }
-
     export const INVALID_CREDENTIALS = {
         code: 401, 
         title: "Unauthorised", 
         message: "Invalid credentials. Please check the email and password."
+    }
+
+    export const PERMISSION_DENIED = {
+        code: 403, 
+        title: "Forbidden", 
+        message: "The current user is not authorized to perform the requested action."
     }
 
     export const USER_NOT_FOUND = {
