@@ -27,7 +27,9 @@ export namespace ServicePreExecutors {
 
             const account = new sdk.Account(this.client);
 
-            await account.get();
+            let user = await account.get();
+
+            this.logger.debug(`successfuly authorised as ${user.$id}`);
         }
     }
 }

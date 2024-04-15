@@ -3,95 +3,102 @@ import * as types from "../types";
 
 import { AuthorisationService } from "./AuthorisationService";
 
+import { ServiceRunners } from "../ServiceRunners";
+
 export namespace AuthorisationRunners {
     /**
      * Creates a new user with the provided credentials.
      *
      * @param {types.Credentials} credentials - The user's credentials including email, phone, password, and name.
-     * @return {[string,string]} the user id
+     * @return {Promise<[string,string]>} the user id
      */
-    export async function createUserRunner(this: AuthorisationService, credentials: types.Credentials): Promise<[string,string]> {
-        var user = await this.users.create(
-            sdk.ID.unique(),
-            credentials.email,
-            credentials.phone,
-            credentials.password,
-            credentials.name
-        )
+    export const createUserRunner: ServiceRunners.IServiceRunner<AuthorisationService, string, string> =
+        async function(this: AuthorisationService, credentials: types.Credentials): Promise<[string, string]> {
+            var user = await this.users.create(
+                sdk.ID.unique(),
+                credentials.email,
+                credentials.phone,
+                credentials.password,
+                credentials.name
+            )
 
-        return [user.$id, user.$id];
-    }
+            return [user.$id, user.$id];
+        }
 
     /**
      * Saves the public data of a user to the server databases.
      *
      * @param {string} userId - The unique identifier of the user.
      * @param {types.Credentials} credentials - The user's credentials.
-     * @return {[null,null]}
+     * @return {Promise<[null,null]>}
      */
-    export async function saveUserPublicDataRunner(this: AuthorisationService, userId: string, credentials: types.Credentials): Promise<[null,null]> {
-        await this.serverDatabases.createDocument(
-            this.database.$id, this.usersPublicData.$id,
-            userId, { 
-                userId: userId,
-                username: credentials.name, 
-                ELO: 1000 
-            } as types.UserPublicData,
-            [
-                sdk.Permission.update(sdk.Role.user(userId)),
-                sdk.Permission.delete(sdk.Role.user(userId))
-            ]
-        );
+    export const saveUserPublicDataRunner: ServiceRunners.IServiceRunner<AuthorisationService, null, null> =
+        async function(this: AuthorisationService, userId: string, credentials: types.Credentials): Promise<[null,null]> {
+            await this.serverDatabases.createDocument(
+                this.database.$id, this.usersPublicData.$id,
+                userId, { 
+                    userId: userId,
+                    username: credentials.name, 
+                    ELO: 1000 
+                } as types.UserPublicData,
+                [
+                    sdk.Permission.update(sdk.Role.user(userId)),
+                    sdk.Permission.delete(sdk.Role.user(userId))
+                ]
+            );
 
-        return [null,null]
-    }
+            return [null,null]
+        }
 
     /**
      * Creates a new session using the provided credentials.
      *
      * @param {types.Credentials} credentials - The user's credentials including email and password.
-     * @return {[sdk.Models.Session,null]} The created session or null if unsuccessful.
+     * @return {Promise<[sdk.Models.Session,null]>} The created session or null if unsuccessful.
      */
-    export async function createSessionRunner(this: AuthorisationService, credentials: types.Credentials): Promise<[sdk.Models.Session,null]> {
-        const account = new sdk.Account(this.server);
+    export const createSessionRunner: ServiceRunners.IServiceRunner<AuthorisationService, sdk.Models.Session, null> =
+        async function(this: AuthorisationService, credentials: types.Credentials): Promise<[sdk.Models.Session,null]> {
+            const account = new sdk.Account(this.server);
 
-        const session = await account.createEmailPasswordSession(credentials.email, credentials.password);
+            const session = await account.createEmailPasswordSession(credentials.email, credentials.password);
 
-        return [session,null]
-    }
+            return [session,null]
+        }
 
     /**
      * Deletes the current session by finding it in the session list and deleting it from the user's sessions.
      *
      * @return {Promise<[null, null]>} Returns a tuple indicating a successful deletion.
      */
-    export async function deleteSessionRunner(this: AuthorisationService): Promise<[null,null]> {
-        const account = new sdk.Account(this.client);
+    export const deleteSessionRunner: ServiceRunners.IServiceRunner<AuthorisationService, null, null> =
+        async function(this: AuthorisationService): Promise<[null,null]> {
+            const account = new sdk.Account(this.client);
 
-        const sessionList = await account.listSessions();
+            const sessionList = await account.listSessions();
 
-        const currentSession = sessionList.sessions.find(session => session.current);
-        
-        await this.users.deleteSession(currentSession.userId, currentSession.$id);
-        return [null,null]
-    }
+            const currentSession = sessionList.sessions.find(session => session.current);
+            
+            await this.users.deleteSession(currentSession.userId, currentSession.$id);
+            return [null,null]
+        }
 
     /**
      * Deletes a user's data document from the database.
      *
      * @param {string} userId - The ID of the user whose data will be deleted
-     * @return {[null,sdk.Models.Document]} the deleted document
+     * @return {Promise<[null,sdk.Models.Document]>} the deleted document
      */
-    export async function deleteUserPublicDataRunner(this: AuthorisationService, userId: string): Promise<[null,sdk.Models.Document]> {
-        var document = await this.clientDatabases.getDocument(
-            this.database.$id, this.usersPublicData.$id, userId
-        )
+    export const deleteUserPublicDataRunner: ServiceRunners.IServiceRunner<AuthorisationService, null, sdk.Models.Document> =
+        async function(this: AuthorisationService, userId: string): Promise<[null,sdk.Models.Document]> {
+            var document = await this.clientDatabases.getDocument(
+                this.database.$id, this.usersPublicData.$id, userId
+            )
 
-        await this.clientDatabases.deleteDocument(
-            this.database.$id, this.usersPublicData.$id, userId
-        );
-        return [null,document]
-    }
+            await this.clientDatabases.deleteDocument(
+                this.database.$id, this.usersPublicData.$id, userId
+            );
+            return [null,document]
+        }
 
     /**
      * Deletes a user using the provided userId.
@@ -99,21 +106,9 @@ export namespace AuthorisationRunners {
      * @param {string} userId - The id of the user to be deleted.
      * @return {Promise<[null, null]>}
      */
-    export async function deleteUserRunner(this: AuthorisationService, userId: string): Promise<[null,null]> {
-        await this.users.delete(userId);
-        return [null, null];
-    }
-
-    /**
-     * Retrieves a user that is currently logged in.
-     *
-     * @param {string} userId - The ID of the user to be retrieved.
-     * @return {Promise<sdk.Models.User<sdk.Models.Preferences>>} The user object retrieved.
-     */
-    export async function getUserFromSessionRunner(this: AuthorisationService): Promise<[sdk.Models.User<sdk.Models.Preferences>,null]> {
-        const account = new sdk.Account(this.client);
-
-        let user = await account.get();
-        return [user, null]
-    }
+    export const deleteUserRunner: ServiceRunners.IServiceRunner<AuthorisationService, null, null> =
+        async function(this: AuthorisationService, userId: string): Promise<[null,null]> {
+            await this.users.delete(userId);
+            return [null, null];
+        }
 }

@@ -1,9 +1,10 @@
 import { BaseService } from "../BaseService";
 
+import { ServiceRunners } from "../ServiceRunners";
 import { AuthorisationRunners } from "./AuthorisationRunners";
 import { AuthorisationRollbacks } from "./AuthorisationRollbacks";
 
-import { Request, Response } from "express";
+import { Request } from "express";
 
 import * as sdk from "node-appwrite";
 import * as types from "../types";
@@ -108,7 +109,7 @@ export class AuthorisationService extends BaseService {
         this.logger.appendContext("DeleteAccount");
 
         let [_, user] = await this.rollbackManager.run<sdk.Models.User<sdk.Models.Preferences>,null>({
-            runner: AuthorisationRunners.getUserFromSessionRunner.bind(this),
+            runner: ServiceRunners.getUserFromSessionRunner.bind(this),
             rollback: null,
             actionMessage: "getting user"
         });

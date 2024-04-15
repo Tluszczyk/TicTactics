@@ -114,7 +114,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Error'
-    /users:
+    /users/list:
         get:
             operationId: GetUsers
             tags:
@@ -142,6 +142,33 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/UnauthorizedError'
+                default:
+                    description: Unexpected error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /games/create:
+        post:
+            operationId: CreateGame
+            tags:
+                - game
+            summary: Create new game
+            security:
+                - cookieAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateGameRequest'
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Game'
                 default:
                     description: Unexpected error
                     content:
@@ -219,3 +246,48 @@ components:
             properties:
                 token:
                     type: string
+
+        # games
+        Symbol:
+            type: string
+            enum: [X, O]
+
+        Winner:
+            type: string
+            enum: [X, O, DRAW, NONE]
+
+        GameStatus:
+            type: string
+            enum: [WAITING_FOR_PLAYERS, IN_PROGRESS, FINISHED]
+
+        GameSettings:
+            type: object
+            properties:
+                isPrivate:
+                    type: boolean
+                opponentId:
+                    type: string
+                creatorSymbol:
+                    $ref: '#/components/schemas/Symbol'
+
+        Game:
+            allOf:
+              - $ref: '#/components/schemas/GameSettings'
+              - type: object
+                properties:
+                    serialisedBoard:
+                        type: string
+                    oPlayerId:
+                        type: string
+                    xPlayerId:
+                        type: string
+                    winner:
+                        $ref: '#/components/schemas/Winner'
+                    status:
+                        $ref: '#/components/schemas/GameStatus'
+
+        CreateGameRequest:
+            type: object
+            properties:
+                gameSettings:
+                    $ref: '#/components/schemas/GameSettings'
