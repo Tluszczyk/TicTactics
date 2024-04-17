@@ -242,7 +242,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Error'
-    /games/join/{gameId}:
+    /games/join:
         put:
             operationId: JoinGame
             tags:
@@ -251,11 +251,15 @@ paths:
             security:
                 - cookieAuth: []
             parameters:
-              - in: path
+              - in: query
                 name: gameId
-                required: true
                 schema:
                     type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/JoinGameRequest'
             responses:
                 '200':
                     description: OK
@@ -361,6 +365,8 @@ components:
             properties:
                 isPrivate:
                     type: boolean
+                accessToken:
+                    type: string
                 opponentId:
                     type: string
                     nullable: true
@@ -422,6 +428,12 @@ components:
                     nullable: true
                     allOf:
                       - $ref: '#/components/schemas/GameSettings'
+
+        JoinGameRequest:
+            type: object
+            properties:
+                accessToken:
+                    type: string
 
         ListGamesResponse:
             type: object

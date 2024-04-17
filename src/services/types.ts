@@ -20,6 +20,7 @@ export type UserPublicData = {
 
 export type GameSettings = {
     isPrivate: boolean;
+    accessToken?: string;
     opponentId: string;
     creatorSymbol: string;
 }

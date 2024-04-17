@@ -61,10 +61,26 @@ export namespace GameManagementRunners {
      * @param {string} gameId - The ID of the game to join.
      * @return {Promise<[null,null]>} A promise that resolves to an array of two null values.
      */
-    export async function joinGameRunner(this: GameManagementService, userId: string, gameId: string): Promise<[null,null]> {
-        const gameDocument = await this.clientDatabases.getDocument(
-            this.database.$id, this.gamesCollection.$id, gameId
-        )
+    export async function joinGameRunner(this: GameManagementService, userId: string, gameId: string, accessToken: string): Promise<[null,null]> {
+        var gameDocument: sdk.Models.Document = null
+
+        console.log(gameId, accessToken)
+        
+        if( accessToken ) {
+            var gameDocuments = await this.serverDatabases.listDocuments(
+                this.database.$id, this.gamesCollection.$id,
+                [sdk.Query.equal("accessToken", accessToken)]
+            )
+
+            if( gameDocuments.documents.length > 1 ) throw new Error("Too many games with the same access token.")
+            else gameDocument = gameDocuments.documents[0]
+
+        } else if( gameId ) {
+            gameDocument = await this.clientDatabases.getDocument(
+                this.database.$id, this.gamesCollection.$id, gameId
+            )
+
+        } else throw new Error("No game ID or access token provided.")
 
         var game = types.parseObjectFromDocument<types.Game>(gameDocument)
 
