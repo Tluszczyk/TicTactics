@@ -79,6 +79,36 @@ export class GameManagementService extends BaseService {
         } as types.ListGamesResponse
     }
 
+    /**
+     * Joins a game based on the provided game ID.
+     *
+     * @param {Request} req - the request object containing the game ID
+     * @return {Promise<void>} a promise that resolves once the user joins the game
+     */
+    async joinGame(req: Request): Promise<void> {
+        this.logger.appendContext("JoinGame");
+        
+        const gameId = req.params.gameId as string;
+
+        var [_, user] = await this.rollbackManager.run<sdk.Models.User<sdk.Models.Preferences>,null>({
+            runner: ServiceRunners.getUserFromSessionRunner.bind(this),
+            rollback: null,
+            actionMessage: "getting user"
+        });
+
+        await this.rollbackManager.run<sdk.Models.Document,null>({
+            runner: GameManagementRunners.joinGameRunner.bind(this, user.$id, gameId),
+            rollback: null,
+            actionMessage: "joining game"
+        });
+    }
+
+    /**
+     * Leaves the game based on the provided game ID.
+     *
+     * @param {Request} req - the request object containing the game ID
+     * @return {Promise<void>} a promise that resolves once the user leaves the game
+     */
     async leaveGame(req: Request): Promise<void> {
         this.logger.appendContext("LeaveGame");
         
