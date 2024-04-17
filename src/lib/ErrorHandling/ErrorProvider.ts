@@ -19,11 +19,20 @@ export class ErrorProvider {
             case message.match(/Permissions must be one of./)?.input:
                 return Errors.build_PERMISSION_DENIED();
 
+            case message.match(/Player already in game/)?.input:
+                return Errors.build_BAD_REQUEST("Player already in game");
+
+            case message.match(/Game already has 2 players/)?.input:
+                return Errors.build_BAD_REQUEST("Game already has 2 players");
+
+            case message.match(/Cannot join game not waiting for players state/)?.input:
+                return Errors.build_BAD_REQUEST("Cannot join game not waiting for players state");
+
             case message.match(/Player is not part of the game/)?.input:
                 return Errors.build_PERMISSION_DENIED("Player is not part of the game");
 
             case message.match(/Cannot quit game in finished state/)?.input:
-                return Errors.build_PERMISSION_DENIED("Cannot quit game in finished state");
+                return Errors.build_BAD_REQUEST("Cannot quit game in finished state");
 
             case message.match(/A user with the same id, email, or phone already exists in this project./)?.input:
                 return Errors.build_USER_ALREADY_EXISTS();

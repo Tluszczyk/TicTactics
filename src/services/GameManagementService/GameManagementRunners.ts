@@ -55,6 +55,30 @@ export namespace GameManagementRunners {
     }   
 
     /**
+     * Joins a game by updating the game document with the user's ID.
+     *
+     * @param {string} userId - The ID of the user joining the game.
+     * @param {string} gameId - The ID of the game to join.
+     * @return {Promise<[null,null]>} A promise that resolves to an array of two null values.
+     */
+    export async function joinGameRunner(this: GameManagementService, userId: string, gameId: string): Promise<[null,null]> {
+        const gameDocument = await this.clientDatabases.getDocument(
+            this.database.$id, this.gamesCollection.$id, gameId
+        )
+
+        var game = types.parseObjectFromDocument<types.Game>(gameDocument)
+
+        game = GameLogic.playerJoinsGame(userId, game);
+
+        await this.serverDatabases.updateDocument(
+            this.database.$id, this.gamesCollection.$id, gameDocument.$id, game,
+            [...gameDocument.$permissions, sdk.Permission.read(sdk.Role.user(userId))]
+        )
+
+        return [null,null]
+    }
+
+    /**
      * Updates the game state when a player leaves the game.
      *
      * @param {string} userId - The ID of the user leaving the game.
