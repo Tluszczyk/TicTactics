@@ -20,30 +20,12 @@ export class UserManagementService extends BaseService {
      * - DELETE /v1/users/{userId}: delete a user
      */
 
-    protected users: sdk.Users = new sdk.Users(this.server);
-    
-    protected usersPublicData: sdk.Models.Collection;
-
     constructor() {
         super();
 
         this.logger.appendContext("UserManagementService");
     }
 
-    /**
-     * Retrieves the user public data collection asynchronously.
-     *
-     * @return {Promise<void>} Promise that resolves once the user public data collection is retrieved
-     */
-    async getCollections(): Promise<void> {
-        this.usersPublicData = await this.serverDatabases.getCollection(
-            EnvironmentVariablesManager.getDATABASE_ID(),
-            EnvironmentVariablesManager.getUSERS_PUBLIC_DATA_COLLECTION_ID()
-        )
-
-        this.logger.debug("user public data collection retrieved");
-    }
-    
     // METHODS
 
     /**

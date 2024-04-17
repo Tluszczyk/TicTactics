@@ -4,6 +4,8 @@ import { ServiceRunners } from "../ServiceRunners";
 import { AuthorisationRunners } from "./AuthorisationRunners";
 import { AuthorisationRollbacks } from "./AuthorisationRollbacks";
 
+import { GameManagementRunners } from "../GameManagementService/GameManagementRunners";
+
 import { Request } from "express";
 
 import * as sdk from "node-appwrite";
@@ -13,28 +15,10 @@ import { EnvironmentVariablesManager } from "../../EnvironmentVariablesManager";
 
 export class AuthorisationService extends BaseService {
 
-    protected users: sdk.Users = new sdk.Users(this.server);
-    
-    protected usersPublicData: sdk.Models.Collection;
-
     constructor() {
         super();
 
         this.logger.appendContext("AuthorisationService");
-    }
-
-    /**
-     * Retrieves the user public data collection from the server databases.
-     *
-     * @return {Promise<void>}
-     */
-    async getCollections(): Promise<void> {
-        this.usersPublicData = await this.serverDatabases.getCollection(
-            EnvironmentVariablesManager.getDATABASE_ID(),
-            EnvironmentVariablesManager.getUSERS_PUBLIC_DATA_COLLECTION_ID()
-        )
-
-        this.logger.debug("user public data collection retrieved");
     }
 
     // METHODS
@@ -118,6 +102,12 @@ export class AuthorisationService extends BaseService {
             runner: AuthorisationRunners.deleteUserPublicDataRunner.bind(this, user.$id),
             rollback: AuthorisationRollbacks.deleteUserPublicDataRollback.bind(this, user.$id),
             actionMessage: "deleting user data"
+        });
+
+        await this.rollbackManager.run<null,null>({
+            runner: GameManagementRunners.leaveAllGamesRunner.bind(this, user.$id),
+            rollback: null,
+            actionMessage: "deleting all user's games"
         });
 
         await this.rollbackManager.run<null,null>({

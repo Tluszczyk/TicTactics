@@ -44,6 +44,21 @@ export class BaseService extends ServiceExecutor {
      * Database instance
      */
     protected database: sdk.Models.Database;
+
+    /**
+     * Users service
+     */
+    protected users: sdk.Users;
+    
+    /**
+     * Game collection
+     */
+    protected gamesCollection: sdk.Models.Collection;
+
+    /**
+     * Users public data collection
+     */
+    protected usersPublicData: sdk.Models.Collection;
     
     /**
      * Manager that manages the rollback of database operations
@@ -58,6 +73,8 @@ export class BaseService extends ServiceExecutor {
 
         this.serverDatabases = new sdk.Databases(this.server);
         this.clientDatabases = new sdk.Databases(this.client);
+
+        this.users = new sdk.Users(this.server);
 
         this.server
             .setEndpoint(EnvironmentVariablesManager.getAPPWRITE_ENDPOINT())
@@ -93,5 +110,19 @@ export class BaseService extends ServiceExecutor {
      *
      * @return {Promise<void>} a Promise that resolves when the collections are retrieved
      */
-    protected async getCollections(): Promise<void> {}
+    protected async getCollections(): Promise<void> {
+        this.usersPublicData = await this.serverDatabases.getCollection(
+            EnvironmentVariablesManager.getDATABASE_ID(),
+            EnvironmentVariablesManager.getUSERS_PUBLIC_DATA_COLLECTION_ID()
+        )
+
+        this.logger.debug("user public data collection retrieved");
+
+        this.gamesCollection = await this.serverDatabases.getCollection(
+            EnvironmentVariablesManager.getDATABASE_ID(),
+            EnvironmentVariablesManager.getGAMES_COLLECTION_ID()
+        )
+
+        this.logger.debug("game collection retrieved");
+    }
 }

@@ -3,6 +3,7 @@ import { GameManagementService } from "./GameManagementService";
 import * as sdk from "node-appwrite";
 import * as types from "../types";
 import { GameLogic } from "../../logic/GameLogic/GameLogic";
+import { BaseService } from "../BaseService";
 
 export namespace GameManagementRunners {
 
@@ -53,18 +54,63 @@ export namespace GameManagementRunners {
         return [games,null];
     }   
 
+    /**
+     * Updates the game state when a player leaves the game.
+     *
+     * @param {string} userId - The ID of the user leaving the game.
+     * @param {sdk.Models.Document} gameDocument - The document representing the game.
+     * @return {Promise<void>} A promise that resolves when the game state is updated.
+     */
+    async function leaveGame(this: GameManagementService, userId: string, gameDocument: sdk.Models.Document): Promise<void> {
+        const game = types.parseObjectFromDocument<types.Game>(gameDocument)
+        
+        var updatedGame = GameLogic.playerQuitsGame(userId, game);
+
+        await this.clientDatabases.updateDocument(
+            this.database.$id, this.gamesCollection.$id, gameDocument.$id, updatedGame
+        )
+    }
+
+    /**
+     * Retrieves a game document and calls the leaveGame function to remove the user from the game.
+     *
+     * @param {GameManagementService} this - the GameManagementService instance
+     * @param {string} userId - the ID of the user
+     * @param {string} gameId - the ID of the game
+     * @return {Promise<[null,null]>} a promise that resolves to an array of null values
+     */
     export async function leaveGameRunner(this: GameManagementService, userId: string, gameId: string): Promise<[null,null]> {
         var gameDocument = await this.clientDatabases.getDocument(
             this.database.$id, this.gamesCollection.$id, gameId
         )
 
-        const game = types.parseObjectFromDocument<types.Game>( gameDocument)
-        
-        var updatedGame = GameLogic.playerQuitsGame(userId, game);
+        await leaveGame.call(this, userId, gameDocument)
 
-        await this.clientDatabases.updateDocument(
-            this.database.$id, this.gamesCollection.$id, gameId, updatedGame
+        return [null,null]
+    }
+
+    /**
+     * Retrieves all games that the given user is participating in and leaves them.
+     *
+     * @param {BaseService} this - the service instance
+     * @param {string} userId - the ID of the user
+     * @return {Promise<[null,null]>} a promise that resolves to an array of null values
+     */
+    export async function leaveAllGamesRunner(this: BaseService, userId: string): Promise<[null,null]> {
+        const oPlayerGames = await this.clientDatabases.listDocuments(
+            this.database.$id, this.gamesCollection.$id,
+            [sdk.Query.equal("oPlayerId", userId)]
         )
+
+        const xPlayerGames = await this.clientDatabases.listDocuments(
+            this.database.$id, this.gamesCollection.$id,
+            [sdk.Query.equal("xPlayerId", userId)]
+        )
+
+        const games = [...oPlayerGames.documents, ...xPlayerGames.documents]
+
+        for (const game of games)
+            await leaveGame.call(this, userId, game)
 
         return [null,null]
     }

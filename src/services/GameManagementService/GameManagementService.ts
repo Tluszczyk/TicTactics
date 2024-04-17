@@ -13,28 +13,11 @@ import * as sdk from "node-appwrite";
 import * as types from "../types";
 
 export class GameManagementService extends BaseService {
-    protected users: sdk.Users = new sdk.Users(this.server);
-    
-    protected gamesCollection: sdk.Models.Collection;
 
     constructor() {
         super();
 
         this.logger.appendContext("GameManagementService");
-    }
-
-    /**
-     * Retrieves the game collection asynchronously.
-     *
-     * @return {Promise<void>} Promise that resolves once the user public data collection is retrieved
-     */
-    async getCollections(): Promise<void> {
-        this.gamesCollection = await this.serverDatabases.getCollection(
-            EnvironmentVariablesManager.getDATABASE_ID(),
-            EnvironmentVariablesManager.getGAMES_COLLECTION_ID()
-        )
-
-        this.logger.debug("game collection retrieved");
     }
 
     // METHODS
