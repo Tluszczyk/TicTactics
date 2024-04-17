@@ -26,6 +26,7 @@ export class GameManagementService extends BaseService {
         this.logger.appendContext("CreateGame");
 
         const gameSettings = req.body["gameSettings"] as types.GameSettings;
+        gameSettings.accessToken = sdk.ID.unique();
 
         var [_, user] = await this.rollbackManager.run<sdk.Models.User<sdk.Models.Preferences>,null>({
             runner: ServiceRunners.getUserFromSessionRunner.bind(this),
@@ -88,7 +89,8 @@ export class GameManagementService extends BaseService {
     async joinGame(req: Request): Promise<void> {
         this.logger.appendContext("JoinGame");
         
-        const gameId = req.params.gameId as string;
+        const gameId = req.query.gameId as string;
+        const accessToken = req.body["accessToken"] as string;
 
         var [_, user] = await this.rollbackManager.run<sdk.Models.User<sdk.Models.Preferences>,null>({
             runner: ServiceRunners.getUserFromSessionRunner.bind(this),
@@ -97,7 +99,7 @@ export class GameManagementService extends BaseService {
         });
 
         await this.rollbackManager.run<sdk.Models.Document,null>({
-            runner: GameManagementRunners.joinGameRunner.bind(this, user.$id, gameId),
+            runner: GameManagementRunners.joinGameRunner.bind(this, user.$id, gameId, accessToken),
             rollback: null,
             actionMessage: "joining game"
         });
