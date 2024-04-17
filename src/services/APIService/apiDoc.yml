@@ -52,10 +52,6 @@ paths:
                             schema:
                                 type: string
                                 description: Session cookie
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/SignInResponse'
                 '401':
                     description: Invalid credentials
                     content:
@@ -124,7 +120,7 @@ paths:
               - in: query
                 name: name
                 schema:
-                  type: string
+                    type: string
             security:
                 - cookieAuth: []
             responses:
@@ -169,6 +165,48 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Game'
+                default:
+                    description: Unexpected error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /games/list:
+        get:
+            operationId: ListGames
+            tags:
+                - game
+            summary: List games
+            security:
+                - cookieAuth: []
+            parameters:
+              - in: query
+                name: gameFilter
+                schema:
+                    $ref: '#/components/schemas/GameFilter'
+              - in: query
+                name: queryLimit
+                schema:
+                    type: number
+                    minimum: 1
+                    maximum: 10
+              - in: query
+                name: queryCursor
+                schema:
+                    type: string
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListGamesResponse'
+                '401':
+                    description: Access token is missing or invalid
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
                 default:
                     description: Unexpected error
                     content:
@@ -267,8 +305,40 @@ components:
                     type: boolean
                 opponentId:
                     type: string
+                    nullable: true
                 creatorSymbol:
                     $ref: '#/components/schemas/Symbol'
+
+        ELOFilter:
+            type: object
+            properties:
+                min:
+                    type: number
+                max:
+                    type: number
+
+        GameFilter:
+            type: object
+            properties:
+                oPlayerId:
+                    type: string
+                    nullable: true
+                xPlayerId:
+                    type: string
+                    nullable: true
+                isPrivate:
+                    type: boolean
+                    nullable: true
+                status:
+                    type: object
+                    nullable: true
+                    allOf:
+                      - $ref: '#/components/schemas/GameStatus'
+                ELO:
+                    type: object
+                    nullable: true
+                    allOf:
+                      - $ref: '#/components/schemas/ELOFilter'
 
         Game:
             allOf:
@@ -290,4 +360,17 @@ components:
             type: object
             properties:
                 gameSettings:
-                    $ref: '#/components/schemas/GameSettings'
+                    type: object
+                    nullable: true
+                    allOf:
+                      - $ref: '#/components/schemas/GameSettings'
+
+        ListGamesResponse:
+            type: object
+            properties:
+                games:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Game'
+                queryCursor:
+                    type: string

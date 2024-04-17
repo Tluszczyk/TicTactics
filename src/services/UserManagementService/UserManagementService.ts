@@ -63,6 +63,6 @@ export class UserManagementService extends BaseService {
             actionMessage: "retrieving user data"
         });
 
-        return usersPublicData.documents.map(user => types.parseUserPublicData(user));
+        return usersPublicData.documents.map(user => types.parseObjectFromDocument<types.UserPublicData>(user));
     }
 }

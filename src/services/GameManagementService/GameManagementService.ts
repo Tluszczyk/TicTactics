@@ -1,13 +1,13 @@
 import { BaseService } from "../BaseService";
 
 import { EnvironmentVariablesManager } from "../../EnvironmentVariablesManager";
-import { RollbackManager } from "../../lib/Rollback/RollbackManager";
 
 import { GameLogic } from "../../logic/GameLogic/GameLogic";
 
 import { ServiceRunners } from "../ServiceRunners";
 import { GameManagementRunners } from "./GameManagementRunners";
-import { GameManagementRollbacks } from "./GameManagementRollbacks";
+
+import { Request } from "express";
 
 import * as sdk from "node-appwrite";
 import * as types from "../types";
@@ -59,5 +59,34 @@ export class GameManagementService extends BaseService {
         });
 
         return game;
+    }
+
+    async listGames(req: Request): Promise<types.ListGamesResponse> {
+        this.logger.appendContext("ListGames");
+
+        const gameFilter = req.query.gameFilter as types.GameFilter;
+        const queryLimit = req.query.queryLimit as undefined as number;
+        const inputCursor = req.query.queryCursor as string;
+
+        var [success, gamesDocuments] = await this.rollbackManager.run<sdk.Models.DocumentList<sdk.Models.Document>,null>({
+            runner: GameManagementRunners.listGamesRunner.bind(this, gameFilter, queryLimit, inputCursor),
+            rollback: null,
+            actionMessage: "retrieving games"
+        });
+
+        if (!success) {
+            return {
+                games:          [],
+                queryCursor:    ""
+            } as types.ListGamesResponse
+        }
+        
+        var games           = gamesDocuments.documents.map(game => types.parseObjectFromDocument<types.Game>(game));
+        var outputCursor    = gamesDocuments.documents.length > 0 ? gamesDocuments.documents[gamesDocuments.documents.length-1].$id : "";
+
+        return {
+            games:          games,
+            queryCursor:    outputCursor
+        } as types.ListGamesResponse
     }
 }

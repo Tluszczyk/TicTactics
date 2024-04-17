@@ -28,6 +28,9 @@ export class ErrorProvider {
             case message.match(/Document with the requested ID could not be found./)?.input:
                 return Errors.DOCUMENT_NOT_FOUND;
 
+            case message.match(/Document \'.*\' for the \'.*\' value not found./)?.input:
+                return Errors.BAD_REQUEST
+
             default:
                 return Errors.INTERNAL_SERVER_ERROR;
         }

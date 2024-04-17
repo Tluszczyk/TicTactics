@@ -32,5 +32,22 @@ export namespace GameManagementRunners {
 
         return [gameDocument,null]
     }
-}
 
+    /**
+     * Retrieves a list of games based on the provided game filter, query limit, and query cursor.
+     *
+     * @param {GameFilter} gameFilter - The filter to apply when retrieving games.
+     * @param {number} [queryLimit] - The maximum number of games to retrieve.
+     * @param {string} [queryCursor] - The cursor to use for pagination.
+     * @returns {Promise<[sdk.Models.DocumentList<sdk.Models.Document>,null]>} A promise that resolves to an array containing the list of games and a null value.
+     */
+    export async function listGamesRunner(this: GameManagementService, gameFilter: types.GameFilter, queryLimit?: number, queryCursor?: string): Promise<[sdk.Models.DocumentList<sdk.Models.Document>,null]> {
+        const queries = types.createQueriesFromFilter(gameFilter, queryLimit, queryCursor);
+        
+        const games = await this.serverDatabases.listDocuments(
+            this.database.$id, this.gamesCollection.$id, queries
+        )
+
+        return [games,null];
+    }   
+}
