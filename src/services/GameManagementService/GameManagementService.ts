@@ -61,6 +61,12 @@ export class GameManagementService extends BaseService {
         return game;
     }
 
+    /**
+     * Retrieves a list of games based on the provided game filter, query limit, and query cursor.
+     *
+     * @param {Request} req - the request object containing the game filter, query limit, and query cursor
+     * @return {Promise<types.ListGamesResponse>} a promise that resolves to a ListGamesResponse object containing the retrieved games and the query cursor
+     */
     async listGames(req: Request): Promise<types.ListGamesResponse> {
         this.logger.appendContext("ListGames");
 
@@ -88,5 +94,23 @@ export class GameManagementService extends BaseService {
             games:          games,
             queryCursor:    outputCursor
         } as types.ListGamesResponse
+    }
+
+    async leaveGame(req: Request): Promise<void> {
+        this.logger.appendContext("LeaveGame");
+        
+        const gameId = req.params.gameId as string;
+
+        var [_, user] = await this.rollbackManager.run<sdk.Models.User<sdk.Models.Preferences>,null>({
+            runner: ServiceRunners.getUserFromSessionRunner.bind(this),
+            rollback: null,
+            actionMessage: "getting user"
+        });
+
+        await this.rollbackManager.run<sdk.Models.Document,null>({
+            runner: GameManagementRunners.leaveGameRunner.bind(this, user.$id, gameId),
+            rollback: null,
+            actionMessage: "leaving game"
+        });
     }
 }

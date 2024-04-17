@@ -88,6 +88,8 @@ export class ServiceExecutor extends LoggingClass {
             throw error;
         }
 
+        this.logger.popContext();
+
         return output;
     }
 

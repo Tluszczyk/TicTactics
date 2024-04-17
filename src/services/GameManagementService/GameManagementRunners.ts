@@ -2,6 +2,7 @@ import { GameManagementService } from "./GameManagementService";
 
 import * as sdk from "node-appwrite";
 import * as types from "../types";
+import { GameLogic } from "../../logic/GameLogic/GameLogic";
 
 export namespace GameManagementRunners {
 
@@ -15,6 +16,7 @@ export namespace GameManagementRunners {
     export async function createGameRunner(this: GameManagementService, userId: string, game: types.Game): Promise<[sdk.Models.Document,null]> {
 
         var permissions: string[] = [
+            sdk.Permission.read(sdk.Role.user(userId)),
             sdk.Permission.read(
                 game.isPrivate ? sdk.Role.user(game.opponentId) : sdk.Role.users()
             ),
@@ -44,10 +46,26 @@ export namespace GameManagementRunners {
     export async function listGamesRunner(this: GameManagementService, gameFilter: types.GameFilter, queryLimit?: number, queryCursor?: string): Promise<[sdk.Models.DocumentList<sdk.Models.Document>,null]> {
         const queries = types.createQueriesFromFilter(gameFilter, queryLimit, queryCursor);
         
-        const games = await this.serverDatabases.listDocuments(
+        const games = await this.clientDatabases.listDocuments(
             this.database.$id, this.gamesCollection.$id, queries
         )
 
         return [games,null];
     }   
+
+    export async function leaveGameRunner(this: GameManagementService, userId: string, gameId: string): Promise<[null,null]> {
+        var gameDocument = await this.clientDatabases.getDocument(
+            this.database.$id, this.gamesCollection.$id, gameId
+        )
+
+        const game = types.parseObjectFromDocument<types.Game>( gameDocument)
+        
+        var updatedGame = GameLogic.playerQuitsGame(userId, game);
+
+        await this.clientDatabases.updateDocument(
+            this.database.$id, this.gamesCollection.$id, gameId, updatedGame
+        )
+
+        return [null,null]
+    }
 }
