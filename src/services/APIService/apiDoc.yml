@@ -213,6 +213,35 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Error'
+    /games/leave/{gameId}:
+        delete:
+            operationId: LeaveGame
+            tags:
+                - game
+            summary: Leave game
+            security:
+                - cookieAuth: []
+            parameters:
+              - in: path
+                name: gameId
+                required: true
+                schema:
+                    type: string
+            responses:
+                '200':
+                    description: OK
+                '401':
+                    description: Access token is missing or invalid
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                default:
+                    description: Unexpected error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
 components:
     securitySchemes:
         cookieAuth:

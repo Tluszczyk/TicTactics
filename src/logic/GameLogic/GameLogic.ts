@@ -32,4 +32,30 @@ export namespace GameLogic {
             status: gameStatus
         }, gameSettings)
     }
+
+/**
+ * Removes a player from the game and sets the winner accordingly.
+ *
+ * @param {string} playerId - The ID of the player quitting the game.
+ * @param {serviceTypes.Game} game - The game object representing the current game state.
+ * @return {serviceTypes.Game} The updated game object with the player removed and the winner determined.
+ * @throws {Error} If the player is not part of the game.
+ */
+    export function playerQuitsGame(playerId: string, game: serviceTypes.Game): serviceTypes.Game {
+        if (game.status == logicTypes.GameStatus.FINISHED)
+            throw new Error("Cannot quit game in finished state");
+
+        var newGame = Object.assign({}, game);
+        
+        if (playerId === newGame.oPlayerId)
+            newGame.winner = logicTypes.Winner.X
+
+        else if (playerId === newGame.xPlayerId)
+            newGame.winner = logicTypes.Winner.O
+
+        else throw new Error("Player is not part of the game");
+
+        newGame.status = logicTypes.GameStatus.FINISHED;
+        return newGame;
+    }
 }
