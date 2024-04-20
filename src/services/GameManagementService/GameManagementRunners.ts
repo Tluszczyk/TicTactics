@@ -63,8 +63,6 @@ export namespace GameManagementRunners {
      */
     export async function joinGameRunner(this: GameManagementService, userId: string, gameId: string, accessToken: string): Promise<[null,null]> {
         var gameDocument: sdk.Models.Document = null
-
-        console.log(gameId, accessToken)
         
         if( accessToken ) {
             var gameDocuments = await this.serverDatabases.listDocuments(
@@ -92,6 +90,22 @@ export namespace GameManagementRunners {
         )
 
         return [null,null]
+    }
+
+    export async function putMoveRunner(this: GameManagementService, userId: string, gameId: string, move: types.Move): Promise<[types.Game,null]> {
+        const gameDocument = await this.clientDatabases.getDocument(
+            this.database.$id, this.gamesCollection.$id, gameId
+        )
+
+        const game = types.parseObjectFromDocument<types.Game>(gameDocument)
+
+        const newGame = GameLogic.playerPutsMove(userId, game, move)
+
+        await this.clientDatabases.updateDocument(
+            this.database.$id, this.gamesCollection.$id, gameDocument.$id, newGame
+        )
+
+        return [newGame,null]
     }
 
     /**

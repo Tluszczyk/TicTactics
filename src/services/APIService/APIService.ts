@@ -86,6 +86,7 @@ export class APIService extends BaseService {
                 'CreateGame':       gameManagementExecutor(this.gameManagementService.createGame,   "createGame",       true),
                 'ListGames':        gameManagementExecutor(this.gameManagementService.listGames,    "listGames",        true),
                 'JoinGame':         gameManagementExecutor(this.gameManagementService.joinGame,     "joinGame",         true),
+                'PutMove':          gameManagementExecutor(this.gameManagementService.putMove,      "putMove",          true),
                 'LeaveGame':        gameManagementExecutor(this.gameManagementService.leaveGame,    "leaveGame",        true)
             }
         });

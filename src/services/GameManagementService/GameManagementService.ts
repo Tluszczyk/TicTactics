@@ -22,6 +22,12 @@ export class GameManagementService extends BaseService {
 
     // METHODS
 
+    /**
+     * Creates a new game based on the provided request.
+     *
+     * @param {Request} req - the request object containing game settings
+     * @return {Promise<types.Game>} a promise that resolves with the created game
+     */
     async createGame(req: Request): Promise<types.Game> {
         this.logger.appendContext("CreateGame");
 
@@ -34,7 +40,7 @@ export class GameManagementService extends BaseService {
             actionMessage: "getting user"
         });
 
-        const game = GameLogic.createGame(user.$id, gameSettings);
+        const game = GameLogic.userCreatesGame(user.$id, gameSettings);
 
         await this.rollbackManager.run<sdk.Models.Document,null>({
             runner: GameManagementRunners.createGameRunner.bind(this, user.$id, game),
@@ -102,6 +108,25 @@ export class GameManagementService extends BaseService {
             runner: GameManagementRunners.joinGameRunner.bind(this, user.$id, gameId, accessToken),
             rollback: null,
             actionMessage: "joining game"
+        });
+    }
+
+    async putMove(req: Request): Promise<void> {
+        this.logger.appendContext("PutMove");
+        
+        const gameId = req.params.gameId as string;
+        const move = types.newMove(req.body["move"]);
+
+        var [_, user] = await this.rollbackManager.run<sdk.Models.User<sdk.Models.Preferences>,null>({
+            runner: ServiceRunners.getUserFromSessionRunner.bind(this),
+            rollback: null,
+            actionMessage: "getting user"
+        });
+
+        await this.rollbackManager.run<sdk.Models.Document,null>({
+            runner: GameManagementRunners.putMoveRunner.bind(this, user.$id, gameId, move),
+            rollback: null,
+            actionMessage: "putting move"
         });
     }
 

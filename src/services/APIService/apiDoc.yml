@@ -275,6 +275,41 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Error'
+    /games/putMove/{gameId}:
+        put:
+            operationId: PutMove
+            tags:
+                - game
+            summary: Put move
+            security:
+                - cookieAuth: []
+            parameters:
+              - in: path
+                required: true
+                name: gameId
+                schema:
+                    type: string
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PutMoveRequest'
+            responses:
+                '200':
+                    description: OK
+                '401':
+                    description: Access token is missing or invalid
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                default:
+                    description: Unexpected error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
 components:
     securitySchemes:
         cookieAuth:
@@ -415,6 +450,16 @@ components:
                         type: string
                     xPlayerId:
                         type: string
+                    moveHistory:
+                        type: array
+                        items:
+                            type: string
+                    availableMoves:
+                        type: array
+                        items:
+                            type: string
+                    turn:
+                        $ref: '#/components/schemas/Symbol'
                     winner:
                         $ref: '#/components/schemas/Winner'
                     status:
@@ -443,4 +488,12 @@ components:
                     items:
                         $ref: '#/components/schemas/Game'
                 queryCursor:
+                    type: string
+        
+        PutMoveRequest:
+            type: object
+            required:
+                - move
+            properties:
+                move:
                     type: string

@@ -19,6 +19,15 @@ export class ErrorProvider {
             case message.match(/Permissions must be one of./)?.input:
                 return Errors.build_PERMISSION_DENIED();
 
+            case message.match(/Player is not the O player/)?.input:
+                return Errors.build_PERMISSION_DENIED("Player is not the O player");
+
+            case message.match(/Player is not the X player/)?.input:
+                return Errors.build_PERMISSION_DENIED("Player is not the X player");
+
+            case message.match(/Provided move is not available/)?.input:
+                return Errors.build_BAD_REQUEST("Provided move is not available");
+
             case message.match(/Player already in game/)?.input:
                 return Errors.build_BAD_REQUEST("Player already in game");
 
