@@ -2,6 +2,7 @@ import { Models } from "node-appwrite";
 
 import * as logicTypes from "../logic/GameLogic/types";
 import * as sdk from "node-appwrite";
+import { Position } from "../logic/GameLogic/Board";
 
 // Types
 
@@ -29,8 +30,11 @@ export type Game = GameSettings & {
     serialisedBoard: string;
     oPlayerId: string;
     xPlayerId: string;
-    winner: string;
-    status: string;
+    moveHistory: Move[];
+    availableMoves: Move[];
+    turn: logicTypes.Symbol;
+    winner: logicTypes.Winner;
+    status: logicTypes.GameStatus;
 }
 
 export type ELOFilter = {
@@ -49,8 +53,22 @@ export type GameFilter = {
 export type ListGamesResponse = {
     games: Game[];
     queryCursor: string;
-    hasMore: boolean;
 }
+
+export type Move = String
+export function newMove(value: string): Move {
+    if ( value.match(/^[A-I][1-9]$/) === null )
+        throw new Error(`Invalid move: ${value}`);
+
+    return value as Move;
+}
+
+export function moveFromPosition(position: Position): Move {
+    return newMove(`${String.fromCharCode(position.x + 65)}${position.y + 1}`);
+}
+
+export function getRow(this: Move): number { return this.charCodeAt(0) - 65 }
+export function getCol(this: Move): number { return parseInt(this.slice(1)) - 1 }
 
 /**
  * Parses the object from the provided document.

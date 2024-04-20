@@ -4,6 +4,28 @@ export enum Symbol {
     EMPTY = "EMPTY"
 }
 
+export function serialiseSymol(symbol: Symbol): string {
+    switch (symbol) {
+        case Symbol.X:
+            return "X";
+        case Symbol.O:
+            return "O";
+        default:
+            return " ";
+    }
+}
+
+export function deserialiseSymol(symbol: string): Symbol {
+    switch (symbol) {
+        case "X":
+            return Symbol.X;
+        case "O":
+            return Symbol.O;
+        default:
+            return Symbol.EMPTY;
+    }
+}
+
 export enum Winner {
     X = "X",
     O = "O",

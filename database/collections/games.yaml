@@ -1,0 +1,70 @@
+Collection:
+    name: games
+    id: games
+    permissions:
+        - action: create
+          roles: 
+            - users
+
+    attributes:
+        - name: isPrivate
+          type: boolean
+          required: false
+
+        - name: accessToken
+          type: string
+          required: false
+          
+        - name: opponentId
+          type: string
+          required: false
+
+        - name: creatorSymbol
+          type: string
+          required: false
+
+        - name: serialisedBoard
+          type: string
+          required: true
+
+        - name: oPlayerId
+          type: string
+          required: true
+
+        - name: xPlayerId
+          type: string
+          required: true
+
+        - name: moveHistory
+          type: array
+          items: string
+          required: true
+
+        - name: availableMoves
+          type: array
+          items: string
+          required: true
+
+        - name: turn
+          type: enum
+          values:
+            - X
+            - O
+          required: true
+
+        - name: winner
+          type: enum
+          values:
+            - X
+            - O
+            - DRAW
+            - NONE
+          required: true
+
+        - name: status
+          type: enum
+          values:
+            - WAITING_FOR_PLAYERS
+            - IN_PROGRESS
+            - FINISHED
+          required: true

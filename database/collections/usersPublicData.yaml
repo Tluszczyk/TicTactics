@@ -1,0 +1,26 @@
+Collection:
+    name: usersPublicData
+    id: usersPublicData
+    permissions:
+        - action: read
+          roles: 
+            - users
+
+    indexes:
+        - name: usernameFullTextIndex
+          type: fulltext
+          attributes:
+            - username
+
+    attributes:
+        - name: userId
+          type: string
+          required: true
+
+        - name: username
+          type: string
+          required: true
+          
+        - name: ELO
+          type: number
+          required: true
